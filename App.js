@@ -1,8 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, SafeAreaView } from 'react-native';
 import ListItem from './components/ListItem';
-import articles from './dummies/articles';
+import dummyArticles from './dummies/articles';
+import { useState, useEffect } from 'react';
+import Constants from 'expo-constants';
+import axios from 'axios';
+
+const URL = `http://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${Constants.manifest.extra.newsApiKey}`;
 
 const styles = StyleSheet.create({
     container: {
@@ -34,21 +38,29 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-    // "map" function creates a new array, using each element of the orignal array called upon.
-    const items = articles.map((article, index) => {
-        return (
-            <ListItem
-                imageUrl={article.urlToImage}
-                title={article.title}
-                author={article.author}
-                key={index}
-            />
-        );
-    });
+    // First item is a state, and the second item is a function that updates the state. The argument of useState() is the initial state.
+    const [articles, setArticles] = useState([]);
+    // By setting the second argument as [], the first argument, which is a function, is called only when the view is rendered for the first time.
+    useEffect(() => {
+        fetchArticles();
+    }, []);
+
+    const fetchArticles = async () => {
+        try {
+            const response = await axios.get(URL);
+            // The argument is a new state.
+            setArticles(response.data.articles);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
-        <View style={styles.container}>
+        // SafeAreaView creates a padding surrounding the view.
+        <SafeAreaView style={styles.container}>
             <FlatList
                 data={articles}
+                // renderItem is a function
                 renderItem={({ item }) => (
                     <ListItem
                         imageUrl={item.urlToImage}
@@ -56,7 +68,8 @@ export default function App() {
                         author={item.author}
                     />
                 )}
+                keyExtractor={(item, index) => index.toString()}
             />
-        </View>
+        </SafeAreaView>
     );
 }

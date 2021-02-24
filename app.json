@@ -27,6 +27,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "newsApiKey": "51fbb7f97ba44768aa06ba4479d43902"
     }
   }
 }
